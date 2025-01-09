@@ -65,8 +65,6 @@ layout_notes.addLayout(col_1, stretch = 2)  # Первая колонка зан
 layout_notes.addLayout(col_2, stretch = 1)  # Вторая колонка занимает 1/3 ширины
 # Устанавливаем layout для главного окна
 notes_win.setLayout(layout_notes)
-for note in notes:
-    list_notes.addItem(note[0])
 
 '''Функционал приложения'''
 # Функция для отображения выбранной заметки
@@ -171,6 +169,10 @@ while True:
 
 # Выводим список заметок в консоль
 print(notes)
+
 # Добавляем названия заметок в список
+for note in notes:
+    list_notes.addItem(note[0])
+
 notes_win.show()# Показываем главное окно
 app.exec_()# Запускаем главный цикл приложения
