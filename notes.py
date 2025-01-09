@@ -5,11 +5,12 @@ from PyQt5.QtWidgets import (QApplication, QWidget,  # Импорт базовы
                             QLineEdit, QTextEdit, QInputDialog,  # Импорт полей ввода и диалогов
                             QHBoxLayout, QVBoxLayout)  # Импорт компоновщиков
 
+import os
+
 app = QApplication([]) # Создаем экземпляр приложения
 notes = [] # Инициализируем список для хранения заметок
 
 '''Интерфейс приложения'''
-
 notes_win = QWidget() # Создаем главное окно приложения
 notes_win.setWindowTitle('Умные заметки') # Устанавливаем заголовок окна
 notes_win.resize(900, 600) # Задаем размеры окна (ширина: 900, высота: 600)
@@ -136,11 +137,67 @@ def search_tag():
         list_notes.addItems(notes) # Показываем все заметки        
         button_tag_search.setText("Искать заметки по тегу") # Возвращаем текст кнопки
 
+# Функция для удаления заметки из списка и файловой системы
+def del_note():
+    # Проверяем, выбрана ли какая-либо заметка в списке
+    if list_notes.selectedItems():
+        # Получаем текст (название) выбранной заметки
+        key = list_notes.selectedItems()[0].text()
+        # Инициализируем индекс для отслеживания позиции заметки в списке
+        index = 0
+        
+        # Перебираем все заметки в поиске нужной
+        for note in notes:
+            # Если нашли заметку с нужным названием
+            if note[0] == key:
+                # Пытаемся удалить файл заметки и перенумеровать оставшиеся
+                try:
+                    # Удаляем файл текущей заметки
+                    os.remove(str(index) + ".txt")
+                    
+                    # Перенумеровываем все последующие файлы
+                    for i in range(index + 1, len(notes)):
+                        if os.path.exists(str(i) + ".txt"):
+                            os.rename(str(i) + ".txt", str(i - 1) + ".txt")
+                            
+                except Exception as e:
+                    print("Ошибка при работе с файлами:", e)
+                
+                # Удаляем заметку из списка заметок по индексу
+                notes.pop(index)
+                # Очищаем поле текста заметки
+                field_text.clear()
+                # Очищаем список тегов
+                list_tags.clear()
+                # Очищаем список заметок в интерфейсе
+                list_notes.clear()
+                # Обновляем список заметок, добавляя только названия
+                list_notes.addItems([note[0] for note in notes])
+                
+                # Пересохраняем все заметки с новыми индексами
+                for i, note in enumerate(notes):
+                    with open(str(i) + ".txt", "w", encoding='utf-8') as file:
+                        file.write(note[0] + '\n')  # Записываем название
+                        file.write(note[1] + '\n')  # Записываем текст
+                        # Записываем теги через пробел
+                        for tag in note[2]:
+                            file.write(tag + ' ')
+                        file.write('\n')
+                
+                # Прерываем цикл, так как заметка уже найдена и удалена
+                break
+            # Увеличиваем индекс для следующей итерации
+            index += 1
+    else:
+        # Если заметка не выбрана, выводим сообщение об ошибке
+        print("Заметка для удаления не выбрана!")
+
 # Привязка обработчиков событий к виджетам
 list_notes.itemClicked.connect(show_note)  # Клик по заметке
 button_note_create.clicked.connect(add_note)  # Клик по кнопке создания
 button_note_save.clicked.connect(save_note)  # Клик по кнопке сохранения
 button_tag_search.clicked.connect(search_tag)  # Клик по кнопке поиска
+button_note_del.clicked.connect(del_note)  # Клик по кнопке удаления
 
 # Загрузка заметок из файлов при запуске
 name = 0  # Счетчик для имен файлов
