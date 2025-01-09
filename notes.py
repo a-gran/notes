@@ -117,26 +117,6 @@ def save_note():
     else:
         print("Заметка для сохранения не выбрана!")
 
-# Функция для поиска заметок по тегу
-def search_tag():    
-    tag = field_tag.text() # Получаем текст из поля тега    
-    if button_tag_search.text() == "Искать заметки по тегу..." and tag: # Если кнопка в режиме поиска и тег указан
-        notes_filtered = {}  # Словарь для отфильтрованных заметок
-        # Ищем заметки с указанным тегом
-        for note in notes:
-            if tag in notes[note]['теги']:
-                notes_filtered[note] = notes[note]        
-        button_tag_search.setText("Сбросить поиск") # Меняем текст кнопки на "Сбросить поиск"        
-        list_notes.clear() # Очищаем список заметок
-        list_tags.clear()  # Очищаем список тегов      
-        list_notes.addItems(notes_filtered) # Показываем только отфильтрованные заметки    
-    elif button_tag_search.text() == "Сбросить поиск": # Если кнопка в режиме сброса        
-        field_tag.clear()  # Очищаем поле тега
-        list_notes.clear() # Очищаем список заметок
-        list_tags.clear()  # Очищаем список тегов     
-        list_notes.addItems(notes) # Показываем все заметки        
-        button_tag_search.setText("Искать заметки по тегу") # Возвращаем текст кнопки
-
 # Функция для удаления заметки из списка и файловой системы
 def del_note():
     # Проверяем, выбрана ли какая-либо заметка в списке
@@ -192,12 +172,115 @@ def del_note():
         # Если заметка не выбрана, выводим сообщение об ошибке
         print("Заметка для удаления не выбрана!")
 
+# Функция для добавления нового тега к заметке
+def add_tag():
+    # Проверяем, выбрана ли какая-либо заметка
+    if list_notes.selectedItems():
+        # Получаем название выбранной заметки
+        key = list_notes.selectedItems()[0].text()
+        # Получаем текст тега из поля ввода
+        tag = field_tag.text()
+        
+        # Проверяем, что тег не пустой
+        if tag:
+            # Ищем нужную заметку в списке
+            for note in notes:
+                if note[0] == key:
+                    # Проверяем, что такого тега еще нет у заметки
+                    if tag not in note[2]:
+                        # Добавляем новый тег в список тегов заметки
+                        note[2].append(tag)
+                        # Добавляем тег в интерфейс списка тегов
+                        list_tags.addItem(tag)
+                        # Очищаем поле ввода тега
+                        field_tag.clear()
+                        # Сохраняем изменения в файл
+                        save_note()
+    else:
+        # Если заметка не выбрана, выводим сообщение об ошибке
+        print("Заметка для добавления тега не выбрана!")
+
+# Функция для удаления тега из заметки
+def del_tag():
+    # Проверяем, выбраны ли заметка и тег
+    if list_notes.selectedItems() and list_tags.selectedItems():
+        # Получаем название выбранной заметки
+        key = list_notes.selectedItems()[0].text()
+        # Получаем текст выбранного тега
+        tag = list_tags.selectedItems()[0].text()
+        
+        # Ищем нужную заметку в списке
+        for note in notes:
+            if note[0] == key:
+                # Удаляем тег из списка тегов заметки
+                note[2].remove(tag)
+                # Очищаем список тегов в интерфейсе
+                list_tags.clear()
+                # Обновляем список тегов в интерфейсе
+                list_tags.addItems(note[2])
+                # Сохраняем изменения в файл
+                save_note()
+    else:
+        # Если тег или заметка не выбраны, выводим сообщение об ошибке
+        print("Тег для удаления не выбран!")
+
+# Функция для поиска заметок по тегу
+def search_tag():
+    # Получаем текст тега из поля ввода
+    tag = field_tag.text()
+    
+    # Если кнопка в режиме поиска и тег указан
+    if button_tag_search.text() == "Искать заметки по тегу" and tag:
+        # Создаем список для хранения найденных заметок
+        matching_notes = []
+        # Перебираем все заметки
+        for note in notes:
+            # Если искомый тег есть в списке тегов заметки
+            if tag in note[2]:
+                # Добавляем название заметки в список найденных
+                matching_notes.append(note[0])
+        
+        # Меняем текст кнопки на "Сбросить поиск"
+        button_tag_search.setText("Сбросить поиск")
+        # Очищаем список заметок в интерфейсе
+        list_notes.clear()
+        # Очищаем список тегов в интерфейсе
+        list_tags.clear()
+        # Очищаем поле текста заметки
+        field_text.clear()
+        # Показываем только найденные заметки
+        list_notes.addItems(matching_notes)
+    
+    # Если кнопка в режиме сброса поиска
+    elif button_tag_search.text() == "Сбросить поиск":
+        # Очищаем поле ввода тега
+        field_tag.clear()
+        # Очищаем список заметок в интерфейсе
+        list_notes.clear()
+        # Очищаем список тегов в интерфейсе
+        list_tags.clear()
+        # Очищаем поле текста заметки
+        field_text.clear()
+        # Показываем все заметки
+        # Создаем временный список для хранения названий заметок
+        note_names = []
+        # Проходим по всем заметкам и добавляем их названия в список
+        for note in notes:
+            note_names.append(note[0])
+        # Добавляем все названия в интерфейс списка заметок
+        list_notes.addItems(note_names)
+        # Возвращаем исходный текст кнопки
+        button_tag_search.setText("Искать заметки по тегу")
+
 # Привязка обработчиков событий к виджетам
 list_notes.itemClicked.connect(show_note)  # Клик по заметке
 button_note_create.clicked.connect(add_note)  # Клик по кнопке создания
 button_note_save.clicked.connect(save_note)  # Клик по кнопке сохранения
+button_note_del.clicked.connect(del_note)  # Клик по кнопке удаления заметки
+
 button_tag_search.clicked.connect(search_tag)  # Клик по кнопке поиска
-button_note_del.clicked.connect(del_note)  # Клик по кнопке удаления
+button_tag_add.clicked.connect(add_tag)  # Клик по кнопке добавления тега
+button_tag_del.clicked.connect(del_tag)  # Клик по кнопке удаления тега
 
 # Загрузка заметок из файлов при запуске
 name = 0  # Счетчик для имен файлов
