@@ -10,12 +10,6 @@ import os
 app = QApplication([]) # Создаем экземпляр приложения
 notes = [] # Инициализируем список для хранения заметок
 
-# Создаем шрифт
-font = app.font()
-font.setPointSize(12)
-# Применяем ко всему приложению
-app.setFont(font)
-
 '''Интерфейс приложения'''
 notes_win = QWidget() # Создаем главное окно приложения
 notes_win.setWindowTitle('Умные заметки') # Устанавливаем заголовок окна
@@ -72,6 +66,27 @@ layout_notes.addLayout(col_1, stretch = 2)  # Первая колонка зан
 layout_notes.addLayout(col_2, stretch = 1)  # Вторая колонка занимает 1/3 ширины
 # Устанавливаем layout для главного окна
 notes_win.setLayout(layout_notes)
+
+# После создания всех виджетов
+notes_win.setStyleSheet("""
+    QPushButton {
+        font-size: 12px;
+        padding: 5px;
+    }
+    QListWidget {
+        font-size: 12px;
+    }
+    QTextEdit {
+        font-size: 14px;
+    }
+    QLabel {
+        font-size: 14px;
+        font-weight: bold;
+    }
+    QLineEdit {
+        font-size: 12px;
+    }
+""")
 
 '''Функционал приложения'''
 # Функция для отображения выбранной заметки
